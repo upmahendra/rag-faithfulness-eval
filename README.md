@@ -1,30 +1,32 @@
-# rag-faithfulness-eval
+# RAG Faithfulness Evaluator
 
-# Day 01 — i found llm doesn't stick to source. asked about checkers program, book says "world tournament", chatgpt says "opponents" + adds extra theory.
+> Does your RAG answer actually come from retrieved documents or is it hallucinating?
 
-that's hallucination. building toolkit to measure it.
+I am building this in public over 30 days. The goal is to detect when LLMs ignore context and make things up.
 
-stack: python, chroma, ragas
+GitHub: https://github.com/upmahendra/rag-faithfulness-eval
 
-day 01 done — check Day01/lab_book.md
+## Why This?
 
-# Day 02 — Making Text Searchable
+Most RAG demos show if answer *looks* correct. In production, we need to know if answer is *faithful* to the documents it retrieved.
 
-Today I finally understood what RAG's "R" actually means.
+Fluent answer!= Faithful answer.
 
-I installed ChromaDB and sentence-transformers and tried to make my laptop understand text like humans do.
+## What I Built So Far
 
-I gave it 3 lines:
-- checkers program
-- machine learning definition
-- python definition
+### Day 01 - Setup
+- Defined problem: Hallucination detection in RAG
+- Planned 30-day roadmap
 
-It converted each line into 384 numbers. That's called an embedding. It’s how AI remembers meaning, not just words.
+### Day 02 - Making Text Searchable by Meaning
+- Used `all-MiniLM-L6-v2` to convert text to 384-dim vectors
+- Implemented semantic search with cosine similarity
+- Query: "what is performance measure for checkers?" correctly retrieves checkers doc, not python doc
 
-Then I asked it: "what is performance measure for checkers?"
-
-It didn't do keyword matching. It compared the meaning of my question with those 384-number vectors and returned the exact checkers line.
-
-That moment clicked for me — retrieval is not search, it's meaning matching.
-
-Next: Check if the answer stays faithful to what we retrieved.
+### Day 03 - Simple Faithfulness Scoring
+- Built first hallucination detector
+- Method: Cosine similarity between answer and retrieved context
+- Result:
+    - Faithful answer: 0.59 -> FAITHFUL
+    - Hallucinated answer: 0.35 -> NOT FAITHFUL
+- No OpenAI key needed, pure embeddings
