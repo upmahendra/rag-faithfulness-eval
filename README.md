@@ -30,3 +30,21 @@ Fluent answer!= Faithful answer.
     - Faithful answer: 0.59 -> FAITHFUL
     - Hallucinated answer: 0.35 -> NOT FAITHFUL
 - No OpenAI key needed, pure embeddings
+
+# Day 04 - RAG Faithfulness Checker
+
+## Objective
+Implement a Faithfulness evaluation for RAG pipeline to detect hallucination. Check if LLM answer is faithful to retrieved context.
+
+## What we did in Day 03 vs Day 04
+
+**Day 03: Basic RAG Retrieval**
+- Setup ChromaDB + SentenceTransformer (all-MiniLM-L6-v2)
+- Add documents and retrieve top-1 context for query
+
+**Day 04: Faithfulness Evaluation**
+- Added `check_faithfulness()` function
+- Used cosine similarity between answer and context
+- Classify as FAITHFUL / NOT FAITHFUL based on threshold
+
+
