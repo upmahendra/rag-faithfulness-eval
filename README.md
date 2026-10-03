@@ -2,49 +2,43 @@
 
 > Does your RAG answer actually come from retrieved documents or is it hallucinating?
 
-I am building this in public over 30 days. The goal is to detect when LLMs ignore context and make things up.
+I'm building this in public over 30 days. The goal is to detect when LLMs ignore context and make things up.
 
-GitHub: https://github.com/upmahendra/rag-faithfulness-eval
+**GitHub:** https://github.com/upmahendra/rag-faithfulness-eval
+
+---
 
 ## Why This?
 
-Most RAG demos show if answer *looks* correct. In production, we need to know if answer is *faithful* to the documents it retrieved.
+Most RAG demos show if an answer *looks* correct. In production, we need to know if the answer is *faithful* to the documents it retrieved.
 
-Fluent answer!= Faithful answer.
+**Fluent answer!= Faithful answer.**
+
+If the retrieved context says "Performance is % of games won" and the LLM says "Performance is accuracy and speed", it's hallucinating — even if it sounds fluent.
 
 ## What I Built So Far
 
 ### Day 01 - Setup
 - Defined problem: Hallucination detection in RAG
-- Planned 30-day roadmap
+- Planned 30-day roadmap: Retrieval -> Faithfulness -> Relevancy -> Metrics
 
 ### Day 02 - Making Text Searchable by Meaning
 - Used `all-MiniLM-L6-v2` to convert text to 384-dim vectors
 - Implemented semantic search with cosine similarity
-- Query: "what is performance measure for checkers?" correctly retrieves checkers doc, not python doc
+- Query: `what is performance measure for checkers?` correctly retrieves checkers doc, not python doc
 
-### Day 03 - Simple Faithfulness Scoring
-- Built first hallucination detector
-- Method: Cosine similarity between answer and retrieved context
-- Result:
-    - Faithful answer: 0.59 -> FAITHFUL
-    - Hallucinated answer: 0.35 -> NOT FAITHFUL
-- No OpenAI key needed, pure embeddings
+### Day 03 - RAG Retrieval with ChromaDB
+- Setup ChromaDB vector store + SentenceTransformer
+- Add 3 docs and retrieve top-1 context
+- Output: `The checkers program learns... Performance is percent of games it wins`
 
-# Day 04 - RAG Faithfulness Checker
+### Day 04 - RAG Faithfulness Checker [Current]
+Implemented `check_faithfulness()` to detect hallucination.
 
-## Objective
-Implement a Faithfulness evaluation for RAG pipeline to detect hallucination. Check if LLM answer is faithful to retrieved context.
-
-## What we did in Day 03 vs Day 04
-
-**Day 03: Basic RAG Retrieval**
-- Setup ChromaDB + SentenceTransformer (all-MiniLM-L6-v2)
-- Add documents and retrieve top-1 context for query
-
-**Day 04: Faithfulness Evaluation**
-- Added `check_faithfulness()` function
-- Used cosine similarity between answer and context
-- Classify as FAITHFUL / NOT FAITHFUL based on threshold
-
-
+**Method:**
+```python
+def check_faithfulness(answer, context):
+    a = model.encode(answer, normalize_embeddings=True)
+    c = model.encode(context, normalize_embeddings=True)
+    score = np.dot(a, c) # cosine similarity
+    return "FAITHFUL" if score > 0.50 else "NOT FAITHFUL"
