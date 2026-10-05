@@ -1,4 +1,4 @@
-# RAG Faithfulness Evaluator
+RAG Faithfulness Evaluator
 Does your RAG answer actually come from retrieved documents or is it hallucinating?
 
 I'm building this in public over 30 days. The goal is to detect when LLMs ignore context and make things up.
@@ -29,7 +29,6 @@ Output: The checkers program learns... Performance is percent of games it wins
 
 Day 04 - RAG Faithfulness Checker
 Implemented check_faithfulness() to detect hallucination.
-
 Method:
 def check_faithfulness(answer, context):
     a = model.encode(answer, normalize_embeddings=True)
@@ -37,25 +36,31 @@ def check_faithfulness(answer, context):
     score = np.dot(a, c)
     return "FAITHFUL" if score > 0.50 else "NOT FAITHFUL"
 
-Day 05 - Context Relevancy + Answer Relevancy [Current]
+Day 05 - Context Relevancy + Answer Relevancy
 Implemented full RAGAS triad - 3 metrics evaluation.
-
 Method:
 def check_relevancy(a, b):
     emb = model.encode([a, b])
     score = cosine_similarity([emb[0]], [emb[1]])[0][0]
     return score
-
-faith_score = check_faithfulness(answer, context)
-context_score = check_relevancy(query, context)
-answer_score = check_relevancy(query, answer)
-
-if faith_score > 0.5 and context_score > 0.5 and answer_score > 0.5:
-    print("GOOD RAG")
-else:
-    print("BAD RAG - needs fix")
-
 Output:
+GOOD RAG: 0.8507, 0.7034, 0.6688 = GOOD RAG
+BAD RAG: 0.7829, 0.0111, 0.0231 = BAD RAG needs fix
+
+Day 06 - Document Chunking [Current]
+Problem: Real docs are long, can't embed whole doc as one vector.
+Implemented fixed-size chunking with overlap.
+Method:
+def chunk_text(text, chunk_size=20, overlap=5):
+    words = text.split()
+    chunks = []
+    for i in range(0, len(words), chunk_size - overlap):
+        chunk = " ".join(words[i:i+chunk_size])
+        chunks.append(chunk)
+    return chunks
+Output:
+No Overlap chunks: 3
+Overlap chunks: 4
+Overlap keeps context: "performance measure P is percent of games won" stays together
 Query: what is performance measure for checkers
-Faithfulness: 0.8507 Context: 0.7034 Answer: 0.6688 = GOOD RAG
-Bad Context Test: 0.7829, 0.0111, 0.0231 = BAD RAG needs fix
+Top contexts correctly retrieves chunk with performance measure
