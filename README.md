@@ -1,4 +1,4 @@
-RAG Faithfulness Evaluator
+# RAG Faithfulness Evaluator
 Does your RAG answer actually come from retrieved documents or is it hallucinating?
 
 I'm building this in public over 30 days. The goal is to detect when LLMs ignore context and make things up.
