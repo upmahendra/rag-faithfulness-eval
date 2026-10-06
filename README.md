@@ -64,3 +64,48 @@ Overlap chunks: 4
 Overlap keeps context: "performance measure P is percent of games won" stays together
 Query: what is performance measure for checkers
 Top contexts correctly retrieves chunk with performance measure
+
+## Day 07 - Recursive Chunking [Current]
+Problem: Fixed word count breaks sentences in middle and loses meaning.
+Ex: "Performance measure P is percent of" | "games won..." - Context broken.
+
+Implemented recursive hierarchy: Paragraph (\n\n) -> Sentence (. ) -> Word.
+
+Method:
+def recursive_chunk(text, chunk_size=150, overlap=20):
+    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+    chunks = []
+    current_chunk = ""
+    for para in paragraphs:
+        if len(current_chunk) + len(para) <= chunk_size:
+            current_chunk += " " + para if current_chunk else para
+        else:
+            if current_chunk:
+                chunks.append(current_chunk.strip())
+            if len(para) > chunk_size:
+                sentences = para.split(". ")
+                temp = ""
+                for sent in sentences:
+                    if len(temp) + len(sent) <= chunk_size:
+                        temp += sent + ". "
+                    else:
+                        chunks.append(temp.strip())
+                        temp = sent + ". "
+                current_chunk = temp
+            else:
+                current_chunk = para
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+    return chunks
+
+Output:
+Total chunks: 5
+Chunk 1 (34 chars): Machine learning is a field of AI.
+Chunk 3 (169 chars): The task T is playing checkers. The performance measure P is percent of games won...
+Query: what is performance measure for checkers
+Retrieved: The task T is playing checkers. The performance measure P is percent of games won in the world tournament...
+Day 07 Done - Recursive chunking preserves sentences
+
+Why Better:
+Day 06: 12 chunks, breaks in middle
+Day 07: 5 chunks, keeps full sentences + paragraphs together. This is how LangChain's RecursiveCharacterTextSplitter works internally.
